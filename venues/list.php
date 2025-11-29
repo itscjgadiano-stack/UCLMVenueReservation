@@ -10,8 +10,11 @@ if (!isset($_SESSION['user_id'])) {
 $is_admin = ($_SESSION['role'] == 'admin');
 
 // Fetch venues
-$stmt = $pdo->query("SELECT v.*, b.Building_name FROM Venue v LEFT JOIN Building b ON v.Building_id = b.Building_id");
-$venues = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmt = $pdo->query('SELECT v.*, b.Building_name FROM Venue v LEFT JOIN Building b ON v.Building_id = b.Building_id');
+$rawVenues = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Normalize keys to lowercase for consistent template access across drivers
+$venues = array_map(function($v) { return array_change_key_case($v, CASE_LOWER); }, $rawVenues);
 ?>
 
 <div class="page-header">
@@ -44,7 +47,7 @@ $venues = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
         <div class="venue-content">
             <div class="venue-meta">
-                <i class="fa-regular fa-building"></i> <?= htmlspecialchars($venue['Building_name'] ?? 'Unknown Building') ?> • Floor <?= $venue['floor_number'] ?>
+                <i class="fa-regular fa-building"></i> <?= htmlspecialchars($venue['building_name'] ?? 'Unknown Building') ?> • Floor <?= $venue['floor_number'] ?>
             </div>
             <h3 class="venue-title"><?= htmlspecialchars($venue['venue_name']) ?></h3>
             

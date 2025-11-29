@@ -22,9 +22,14 @@ if (!$venue) {
     die("Venue not found.");
 }
 
+// Normalize keys to lowercase so templates work the same for SQLite and Oracle
+$venue = array_change_key_case($venue, CASE_LOWER);
+
 // Fetch buildings
 $stmt = $pdo->query("SELECT * FROM Building");
-$buildings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$rawBuildings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Normalize building keys to lowercase as well
+$buildings = array_map(function($b){ return array_change_key_case($b, CASE_LOWER); }, $rawBuildings);
 
 $error = '';
 $success = '';
@@ -61,6 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $stmt = $pdo->prepare("SELECT * FROM Venue WHERE venue_id = ?");
             $stmt->execute([$id]);
             $venue = $stmt->fetch(PDO::FETCH_ASSOC);
+            $venue = array_change_key_case($venue, CASE_LOWER);
         } catch (PDOException $e) {
             $error = "Error updating venue: " . $e->getMessage();
         }
@@ -104,11 +110,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <label class="form-label">Building</label>
                         <select name="building_id" class="form-control" required>
                             <option value="">Select Building</option>
-                            <?php foreach($buildings as $building): ?>
-                                <option value="<?= $building['Building_id'] ?>" <?= $building['Building_id'] == $venue['Building_id'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($building['Building_name']) ?>
-                                </option>
-                            <?php endforeach; ?>
+                                    <?php foreach($buildings as $building): ?>
+                                        <option value="<?= $building['building_id'] ?>" <?= $building['building_id'] == $venue['building_id'] ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($building['building_name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
                         </select>
                     </div>
 

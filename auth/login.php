@@ -11,9 +11,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($username) || empty($password)) {
         $error = "Please fill in all fields.";
     } else {
-        $stmt = $pdo->prepare("SELECT * FROM User WHERE user_name = ?");
+        $stmt = $pdo->prepare('SELECT * FROM "User" WHERE user_name = ?');
         $stmt->execute([$username]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($user) {
+            // Normalize column keys to lowercase for consistent access across drivers
+            $user = array_change_key_case($user, CASE_LOWER);
+        }
 
         if ($user && password_verify($password, $user['password_hash'])) {
             $_SESSION['user_id'] = $user['user_id'];

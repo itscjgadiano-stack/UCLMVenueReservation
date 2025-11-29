@@ -12,7 +12,9 @@ $success = '';
 
 // Fetch buildings
 $stmt = $pdo->query("SELECT * FROM Building");
-$buildings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$rawBuildings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Normalize building keys to lowercase for consistent template access
+$buildings = array_map(function($b){ return array_change_key_case($b, CASE_LOWER); }, $rawBuildings);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $venue_name = trim($_POST['venue_name']);
@@ -87,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <select name="building_id" class="form-control" required>
                                 <option value="">Select Building</option>
                                 <?php foreach($buildings as $building): ?>
-                                    <option value="<?= $building['Building_id'] ?>"><?= htmlspecialchars($building['Building_name']) ?></option>
+                                    <option value="<?= $building['building_id'] ?>"><?= htmlspecialchars($building['building_name']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                             <button type="button" class="btn btn-outline" onclick="document.getElementById('addBuildingModal').style.display='flex'" title="Add Building">

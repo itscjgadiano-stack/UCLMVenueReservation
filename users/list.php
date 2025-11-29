@@ -7,8 +7,13 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
     exit;
 }
 
-$stmt = $pdo->query("SELECT u.*, d.department_name FROM User u LEFT JOIN Department d ON u.department_id = d.department_id");
-$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmt = $pdo->query('SELECT u.*, d.department_name FROM "User" u LEFT JOIN Department d ON u.department_id = d.department_id');
+$rawUsers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Normalize keys to lowercase for consistent template access across drivers
+$users = array_map(function($u) {
+    return array_change_key_case($u, CASE_LOWER);
+}, $rawUsers);
 ?>
 
 <div class="page-header">

@@ -59,6 +59,8 @@ You can run PHP's built-in web server from the project root for development:
 
 ```powershell
 php -S localhost:8000 -t .
+
+php -S localhost:8000 -t "c:\app\Chrystal\product\21c\dbhomeXE\demo\schema\UCLMVenueReservation"
 ```
 
 Then open your browser to: `http://localhost:8000`

@@ -23,6 +23,9 @@ if (!$reservation) {
     die("Reservation not found or access denied.");
 }
 
+// Normalize column keys to lowercase for consistent access across drivers
+$reservation = array_change_key_case($reservation, CASE_LOWER);
+
 // Prevent cancelling past reservations
 if (strtotime($reservation['start_time']) < time()) {
     die("Cannot cancel past reservations.");

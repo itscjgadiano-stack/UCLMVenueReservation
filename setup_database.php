@@ -67,16 +67,51 @@ try {
         $pdo->exec($command);
     }
 
-    // Seed initial data
-    $pdo->exec("INSERT OR IGNORE INTO Reservation_Status (status_name) VALUES ('Pending'), ('Approved'), ('Rejected'), ('Cancelled')");
-    
+    // Seed initial data - Use Oracle-compatible MERGE statements
+    $statuses = ['Pending', 'Approved', 'Rejected', 'Cancelled'];
+    foreach ($statuses as $status) {
+        $stmt = $pdo->prepare("
+            MERGE INTO Reservation_Status rs
+            USING (SELECT ? AS status_name FROM DUAL) src
+            ON (rs.status_name = src.status_name)
+            WHEN NOT MATCHED THEN
+                INSERT (status_name) VALUES (src.status_name)
+        ");
+        $stmt->execute([$status]);
+    }
+
     $departments = [
-        'AAC', 'ACCOUNTING', 'CAD', 'CARES', 'CASHIER', 'CCS', 'CDRC', 'CHTM', 
-        'CLINIC', 'CRIMINOLOGY', 'CTE', 'EDP', 'ERS', 'GUIDANCE', 'HR', 'IQA', 
-        'LIBRARY', 'MARE', 'MDO', 'MT', 'NSA', 'NURSING', 'OTO', 'PCO', 
-        'REGISTRAR', 'SAO', 'SCHOLARSHIP', 'TETAC', 'URO'
+        'AAC',
+        'ACCOUNTING',
+        'CAD',
+        'CARES',
+        'CASHIER',
+        'CCS',
+        'CDRC',
+        'CHTM',
+        'CLINIC',
+        'CRIMINOLOGY',
+        'CTE',
+        'EDP',
+        'ERS',
+        'GUIDANCE',
+        'HR',
+        'IQA',
+        'LIBRARY',
+        'MARE',
+        'MDO',
+        'MT',
+        'NSA',
+        'NURSING',
+        'OTO',
+        'PCO',
+        'REGISTRAR',
+        'SAO',
+        'SCHOLARSHIP',
+        'TETAC',
+        'URO'
     ];
-    
+
     $dept_sql = "INSERT OR IGNORE INTO Department (department_name) VALUES ";
     $values = [];
     foreach ($departments as $dept) {
